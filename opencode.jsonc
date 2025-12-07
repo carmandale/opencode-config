@@ -1,0 +1,117 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  
+  // === Models ===
+  "model": "anthropic/claude-opus-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",  // title gen, lightweight tasks
+  "autoupdate": true,
+  
+  // === TUI ===
+  "tui": {
+    "scroll_acceleration": {
+      "enabled": true  // macOS-style momentum scrolling
+    }
+  },
+  
+  // === Formatters ===
+  // Runs after file writes - uses project's formatter config
+  "formatter": {
+    "biome": {
+      "command": ["npx", "biome", "format", "--write", "$FILE"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".jsonc"]
+    },
+    "prettier": {
+      "command": ["npx", "prettier", "--write", "$FILE"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".md", ".yaml", ".yml", ".css", ".scss"]
+    }
+  },
+  
+  // === Instructions ===
+  "instructions": [
+    "~/.claude/CLAUDE.md",
+    "~/.config/**/README.md",
+    "~/.config/**/*.md"
+  ],
+  
+  // === Permissions ===
+  "permission": {
+    // .env reads without prompts
+    "read": {
+      ".env": "allow",
+      ".env.*": "allow",
+      ".env-*": "allow"
+    },
+    "external_directory": "allow",
+    // Only deny the truly catastrophic - everything else just runs
+    "bash": {
+      "sudo *": "deny",
+      "rm -rf /": "deny",
+      "rm -rf /*": "deny",
+      "rm -rf ~": "deny",
+      "rm -rf ~/*": "deny",
+      ":(){:|:&};:": "deny"  // fork bomb, just in case
+    }
+  },
+  
+  // === MCP Servers ===
+  "mcp": {
+    "next-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "next-devtools-mcp@latest"]
+    },
+    "agent-mail": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8765/mcp/"
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    },
+    // Docs lookup for libraries - https://context7.com
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    // Web fetching - MCP official server (Python via uvx)
+    "fetch": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-fetch"]
+    }
+  },
+  
+  // === Agent Overrides ===
+  "agent": {
+    // Build agent - full capability with slight creativity
+    "build": {
+      "temperature": 0.3
+    },
+    // Plan agent - read-only analysis, no file writes
+    "plan": {
+      "model": "anthropic/claude-sonnet-4-5",  // Sonnet for planning (cheaper)
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "patch": false
+      },
+      "permission": {
+        "bash": {
+          "git status": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git show*": "allow",
+          "bd *": "allow",
+          "rg *": "allow",
+          "tree *": "allow",
+          "wc *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "pnpm exec tsc*": "allow",
+          "pnpm run lint*": "allow",
+          "pnpm test*": "allow",
+          "*": "deny"
+        }
+      }
+    }
+  }
+}

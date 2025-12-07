@@ -1,0 +1,12 @@
+# Beads local files
+.beads/beads.db
+.beads/beads.db-shm
+.beads/beads.db-wal
+.beads/.gitignore
+
+# Node
+node_modules/
+bun.lock
+
+# OS
+.DS_Store
