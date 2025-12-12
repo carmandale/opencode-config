@@ -14,17 +14,7 @@
   },
   
   // === Formatters ===
-  // Runs after file writes - uses project's formatter config
-  "formatter": {
-    "biome": {
-      "command": ["npx", "biome", "format", "--write", "$FILE"],
-      "extensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".jsonc"]
-    },
-    "prettier": {
-      "command": ["npx", "prettier", "--write", "$FILE"],
-      "extensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".md", ".yaml", ".yml", ".css", ".scss"]
-    }
-  },
+  // Swift formatting handled by Xcode / swift-format in project configs
   
   // === Instructions ===
   // AGENTS.md auto-loaded from ~/.config/opencode/ and repo root
@@ -52,17 +42,12 @@
 
   // === MCP Servers ===
   "mcp": {
-    "next-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "next-devtools-mcp@latest"]
-    },
-    // "agent-mail": {
-    //   "type": "remote",
-    //   "url": "http://127.0.0.1:8765/mcp/"
-    // },
-    "chrome-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
+    "agent-mail": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8765/mcp/",
+      "headers": {
+        "Authorization": "Bearer 422b429ed87ec88e7cfe258b3ddee9eb9afe2adcf62ae1a5d4c89269ae1c9a90"
+      }
     },
     // Docs lookup for libraries - https://context7.com
     "context7": {
@@ -74,10 +59,10 @@
       "type": "local",
       "command": ["uvx", "mcp-server-fetch"]
     },
-    // Snyk security scanning - deps, code, IaC, containers
-    "snyk": {
+    // RepoPrompt - repo context generation
+    "RepoPrompt": {
       "type": "local",
-      "command": ["npx", "-y", "snyk@latest", "mcp", "-t", "stdio"]
+      "command": ["/Users/dalecarman/RepoPrompt/repoprompt_cli"]
     }
   },
   
@@ -108,38 +93,13 @@
           "wc *": "allow",
           "head *": "allow",
           "tail *": "allow",
-          "pnpm exec tsc*": "allow",
-          "pnpm run lint*": "allow",
-          "pnpm test*": "allow",
+          "swift build*": "allow",
+          "swift test*": "allow",
+          "xcodebuild -showBuildSettings*": "allow",
+          "xcrun *": "allow",
           "*": "deny"
         }
       }
-    },
-    // Security agent - read-only vulnerability scanning with Snyk
-    "security": {
-      "model": "anthropic/claude-sonnet-4-5",
-      "temperature": 0.1,  // Low temp for deterministic security analysis
-      "tools": {
-        "write": false,
-        "edit": false,
-        "patch": false
-      },
-      "description": "Security auditor - scans for vulnerabilities using Snyk tools (SCA, SAST, IaC, container). Read-only, reports findings without modification."
-    },
-    // Test writer agent - generates comprehensive test suites
-    "test-writer": {
-      "model": "anthropic/claude-sonnet-4-5",
-      "temperature": 0.2,  // Slight creativity for test case generation
-      "permission": {
-        "write": {
-          "**/*.test.ts": "allow",
-          "**/*.spec.ts": "allow",
-          "**/*.test.tsx": "allow",
-          "**/*.spec.tsx": "allow",
-          "*": "deny"
-        }
-      },
-      "description": "Test specialist - generates comprehensive unit, integration, and e2e tests. Can only write to test files."
     },
     // Docs agent - documentation writer (cheaper model)
     "docs": {
