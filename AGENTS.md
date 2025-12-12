@@ -191,56 +191,164 @@ Do it yourself when:
 Agent Mail is running as a launchd service at http://127.0.0.1:8765. It provides coordination when multiple AI agents (Claude, Cursor, OpenCode, etc.) work the same repo - prevents collision via file reservations and enables async messaging between agents.
 
 **Product Bus:** This repo is part of `GrooveTech-Orchestrator-Suite` - cross-repo coordination with GMP, Orchestrator, AVPStreamKit, and Media Server.
+</agent_mail_context>
 
-Use Agent Mail when:
+### When to Use Agent Mail
 
-- Multiple agents are working the same codebase
-- You need to reserve files before editing (prevents conflicts)
-- You want to communicate with other agents asynchronously
-- You need to check if another agent has reserved files you want to edit
+**Use it when:**
 
-Skip Agent Mail when:
+- Multiple agents working the same codebase (Claude + Cursor, parallel swarm workers)
+- Editing shared files that other agents might touch
+- Cross-repo coordination (AVPStreamKit changes affecting GMP/Orchestrator/Pfizer)
+- Async handoffs between sessions or agents
 
-- You're the only agent working the repo
-- Quick edits that don't need coordination
-  </agent_mail_context>
+**Skip it when:**
 
-### Session Start (REQUIRED before using Agent Mail)
+- Solo agent on isolated feature
+- Quick read-only exploration
+- Single-file edits with no collision risk
 
-Use the plugin tool to initialize (handles project creation + agent registration in one call):
+### Session Lifecycle
+
+#### 1. Initialize (REQUIRED first)
 
 ```
 agentmail_init(
   project_path="/abs/path/to/repo",
   task_description="Working on feature X"
 )
-# Returns: { agent_name: "BlueLake", project_key: "..." } - remember agent_name!
+# Returns: { agent_name: "BlueLake", project_key: "..." }
+# REMEMBER your agent_name - you'll need it for the whole session
 ```
 
-### Quick Commands
+#### 2. Check for Active Work
 
-```bash
-# Health check (or use agentmail_health tool)
-curl http://127.0.0.1:8765/health/liveness
-
-# Web UI for browsing messages
-open http://127.0.0.1:8765/mail
+```
+agentmail_inbox()           # Headers only, auto-limited to 5
+agentmail_health()          # Server status + your reservations
 ```
 
-### Key Workflows (after init)
+#### 3. Reserve Before Editing
 
-1. **Reserve files before edit**: `agentmail_reserve(patterns=["src/**"], ttl_seconds=3600, exclusive=true)`
-2. **Send message to other agents**: `agentmail_send(to="OtherAgent", subject="...", body="...", thread_id="bd-123")`
-3. **Check inbox**: `agentmail_inbox()` (auto-limited to 5, headers only)
-4. **Read specific message**: `agentmail_read_message(message_id="...")`
-5. **Summarize thread**: `agentmail_summarize_thread(thread_id="bd-123")`
-6. **Release reservations when done**: `agentmail_release()`
+```
+agentmail_reserve(
+  patterns=["Sources/AVPStreamKit/**"],
+  ttl_seconds=3600,
+  exclusive=true,
+  reason="bd-123: Refactoring connection manager"
+)
+```
+
+**Reservation rules:**
+
+- `exclusive=true` blocks other agents from the same files
+- Always include bead ID in `reason` for traceability
+- TTL auto-releases if you crash/forget - set realistic duration
+- Check `agentmail_health()` to see your active reservations
+
+#### 4. Coordinate with Other Agents
+
+```
+# Send targeted message
+agentmail_send(
+  to="PurpleDog",
+  subject="AVPStreamKit API change",
+  body="Changed ConnectionManager.connect() signature - update GMP calls",
+  thread_id="bd-123"
+)
+
+# Broadcast to all agents on project
+agentmail_send(
+  to="*",
+  subject="Breaking change in shared package",
+  body="...",
+  thread_id="bd-123"
+)
+```
+
+#### 5. Handle Incoming Messages
+
+```
+agentmail_inbox()                              # Check for new messages
+agentmail_read_message(message_id="...")       # Get full body
+agentmail_summarize_thread(thread_id="bd-123") # Catch up on thread
+agentmail_ack(message_id="...")                # Mark as handled
+```
+
+#### 6. Release on Completion
+
+```
+agentmail_release()  # Releases ALL your reservations
+# Or release specific patterns:
+agentmail_release(patterns=["Sources/AVPStreamKit/**"])
+```
+
+### Cross-Repo Coordination Patterns
+
+**Shared Package Changes (AVPStreamKit):**
+
+```
+# 1. Reserve in AVPStreamKit
+agentmail_reserve(patterns=["Sources/**"], reason="bd-123: API change")
+
+# 2. Make changes, test locally
+
+# 3. Notify dependent repos BEFORE pushing
+agentmail_send(
+  to="*",
+  subject="AVPStreamKit: ConnectionManager signature change",
+  body="Old: connect(host:) -> New: connect(config:). Update call sites.",
+  thread_id="bd-123"
+)
+
+# 4. Push AVPStreamKit, then update dependents
+```
+
+**Parallel Swarm Workers:**
+
+```
+# Planner decomposes task, assigns file reservations per worker
+# Worker 1: reserves Sources/Views/**
+# Worker 2: reserves Sources/Models/**
+# Worker 3: reserves Sources/Services/**
+
+# Each worker checks inbox before starting for coordination messages
+# Workers send completion messages when done
+# Planner collects results, releases all reservations
+```
 
 ### Integration with Beads
 
-- Use beads issue ID as `thread_id` in Agent Mail (e.g., `thread_id="bd-123"`)
-- Include issue ID in file reservation `reason` for traceability
-- When starting a beads task, reserve the files; when closing, release them
+| Beads Action            | Agent Mail Action                                |
+| ----------------------- | ------------------------------------------------ |
+| `bd start ID`           | `agentmail_reserve(reason="ID: description")`    |
+| `bd close ID`           | `agentmail_release()` + notify if cross-repo     |
+| Found bug while working | `agentmail_send()` to relevant agent if blocking |
+| Scope change            | `agentmail_send()` to affected agents            |
+
+**Thread linking:** Always use bead ID as `thread_id` - keeps all coordination messages grouped with the issue.
+
+### Troubleshooting
+
+```bash
+# Health check
+curl http://127.0.0.1:8765/health/liveness
+
+# Web UI for browsing all messages
+open http://127.0.0.1:8765/mail
+
+# If server is down (launchd should auto-restart)
+launchctl kickstart -k gui/$(id -u)/com.agentmail.server
+```
+
+### Context Preservation Rules
+
+**MANDATORY to prevent context exhaustion:**
+
+- `agentmail_inbox()` auto-limits to 5 messages, headers only
+- Use `agentmail_read_message()` for specific message bodies
+- Use `agentmail_summarize_thread()` instead of fetching all messages
+- Never fetch full inbox with bodies in main conversation
 
 ## cass — Search All Your Agent History
 
