@@ -561,6 +561,7 @@ Use Swift doc comments (`///`) and keep them DocC-friendly (clear summary line, 
 
 Reference these when relevant - don't preload everything:
 
+- **Swift patterns**: `knowledge/swift-patterns.md` - Observable, concurrency, AI code fixes, Xcode setup
 - **Build/Run/Logs**: `AGENT-GUIDE.md` - Xcode + `xcodebuild`, simulator install/launch, log capture
 - **VisionOS patterns**: `.cursor/rules/*.mdc` - SwiftUI, RealityKit, Immersive Spaces, ECS patterns
 - **Project docs/specs**: `Docs/` and `specs/` - architecture notes, feature specs, decision records
