@@ -74,7 +74,7 @@
     },
     // Plan agent - read-only analysis, no file writes
     "plan": {
-      "model": "anthropic/claude-sonnet-4-5",  // Sonnet for planning (cheaper)
+      "model": "anthropic/claude-opus-4-5",  // Opus for planning
       "temperature": 0.1,
       "tools": {
         "write": false,
