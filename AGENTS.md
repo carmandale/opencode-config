@@ -1,101 +1,126 @@
 ## Who You're Working With
 
-Joel Hooks - co-founder of egghead.io, education at Vercel, builds badass courses via Skill Recordings (Total TypeScript, Pro Tailwind). Deep background in bootstrapping, systems thinking, and developer education. Lives in the Next.js/React ecosystem daily - RSC, server components, suspense, streaming, caching. Skip the tutorials.
+Dale Carman — Chief Visioneer / Chief Creative Officer at Groove Jones. Builds Apple Vision Pro experiences that have to look cinematic, run at performance targets, and survive real-world show floors (operators, resets, network weirdness, 200+ devices). You’re not here to debate frameworks — you’re here to ship clean, modern visionOS code.
+
+Daily ecosystem: visionOS 26, SwiftUI, RealityKit, Reality Composer Pro, Swift 6.x concurrency, Observation (@Observable), and RealityKit ECS (Components + Systems).
+
+Skip the “hello world” tutorials.
+
+## Repository Guidelines
+
+## Related Project Repositories
+
+1. **groovetech-media-player** (GMP) AVP app that is a GrooveTech Media Player Type app
+   - Path: `/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/groovetech-media-player`
+
+2. **orchestrator** (Orchestrator) iPad app that "Orchestrates" 200+ Apple Vision Pro devices to control apps running on AVP devices that can be 1 of 2 types of apps, a media type or scene type.
+   - Path: `/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/orchestrator`
+
+3. **AVPStreamKit** A swift Package that is used in all of the apps
+   - Path: `/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/AVPStreamKit`
+
+4. **PfizerOutdoCancerV2** (Pfizer) AVP app that is a Scene Type app
+   - Path: `/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2`
+
+5. **groovetech-media-server** (MS) MacOS app that serves media to Media Player Type App
+   - Path: `/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/groovetech-media-server`
+
+## North Star: Modern Apple Development Excellence
+
+**Shorthand for reviews/chats:** “Does this follow our North Star?” / “Follow our North Star.”
+
+**Build best-in-class apps using current Apple patterns and practices.**
+
+### Core Principles:
+
+**Modern-First Architecture**
+
+- SwiftUI, Observation, MainActor, async/await, Structured Concurrency
+- RealityKit ECS patterns for spatial computing
+- Swift 6 strict concurrency where applicable
+
+**No Legacy Compromises**
+
+- No UIKit fallbacks, no deprecated APIs, no "just in case" backwards compatibility
+- Every legacy pattern adds tech debt and confusion
+- If it requires old patterns, challenge the requirement
+
+**Fail Fast Philosophy**
+
+- Compiler errors over runtime failures
+- Type safety over string-based APIs
+- `@MainActor` annotations over dispatch queue management
+- Let the system crash early rather than limp along broken
+
+**Clean Code Standards**
+
+- Lean, purposeful implementations
+- No defensive bloat or "AI safety padding"
+- No commented-out alternatives or hedge-bet code paths
+- Trust modern APIs to work as designed
+
+**Reactive & Declarative**
+
+- Embrace SwiftUI's declarative nature
+- Use Observation framework, not ObservableObject
+- Combine/AsyncSequence for data flows
+- State flows down, actions flow up
+
+**When in doubt: What would Apple's sample code do in 2025?**
 
 <tool_preferences>
 
-**USE SWARM PLUGIN TOOLS - NOT RAW CLI/MCP**
+**always use beads `bd` for planning and task management**
 
-The `opencode-swarm-plugin` provides type-safe, context-preserving wrappers. Always prefer plugin tools over raw `bd` commands or Agent Mail MCP calls.
+Reach for tools in this order:
 
-### Tool Priority Order
+1. **Read/Edit** - direct file operations over bash cat/sed
+2. **ast-grep** - structural code search over regex grep
+3. **Glob/Grep** - file discovery over find commands
+4. **Task (subagent)** - complex multi-step exploration, parallel work
+5. **Bash** - system commands, git, bd, running tests/builds
 
-1. **Swarm Plugin Tools** - `beads_*`, `agentmail_*`, `swarm_*`, `structured_*` (ALWAYS FIRST)
-2. **Read/Edit** - direct file operations over bash cat/sed
-3. **ast-grep** - structural code search over regex grep
-4. **Glob/Grep** - file discovery over find commands
-5. **Task (subagent)** - complex multi-step exploration, parallel work
-6. **Bash** - system commands, git, running tests/builds (NOT for beads/agentmail)
+### Build & Test (MANDATORY)
+
+- **Always use the repo wrapper**: `./.claude/scripts/xcodebuild` (not raw `xcodebuild`).
+- **Always run from the repo/worktree root** (so paths and derived data land in the expected `./build/` folders).
+
+Build (visionOS Simulator):
+
+```bash
+cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2" && ./.claude/scripts/xcodebuild -project "./PfizerOutdoCancer.xcodeproj" -scheme "PfizerOutdoCancer" build -destination 'generic/platform=visionOS Simulator'
+```
+
+Test (visionOS Simulator):
+
+```bash
+cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2" && ./.claude/scripts/xcodebuild -project "./PfizerOutdoCancer.xcodeproj" -scheme "PfizerOutdoCancer" test -destination 'generic/platform=visionOS Simulator'
+```
+
+If a tool or snippet suggests `xcodebuild ...` directly, treat it as **pseudocode** and translate it to the wrapper script unless you explicitly ask otherwise.
 
 ### MCP Servers Available
 
-- **next-devtools** - Next.js dev server integration, route inspection, error diagnostics
+- **agent-mail** - Multi-agent coordination, file reservations, async messaging (OPTIONAL - plugin provides same functionality)
 - **chrome-devtools** - Browser automation, DOM inspection, network monitoring
 - **context7** - Library documentation lookup (`use context7` in prompts)
 - **fetch** - Web fetching with markdown conversion, pagination support
 
-### Swarm Plugin Tools (PRIMARY - use these)
+### Custom Tools Available
 
-**Beads** (issue tracking):
-| Tool | Purpose |
-|------|---------|
-| `beads_create` | Create bead with type-safe validation |
-| `beads_create_epic` | Atomic epic + subtasks creation |
-| `beads_query` | Query with filters (replaces `bd list/ready/wip`) |
-| `beads_update` | Update status/description/priority |
-| `beads_close` | Close with reason |
-| `beads_start` | Mark in-progress |
-| `beads_ready` | Get next unblocked bead |
-| `beads_sync` | Sync to git (MANDATORY at session end) |
-
-**Agent Mail** (multi-agent coordination):
-| Tool | Purpose |
-|------|---------|
-| `agentmail_init` | Initialize session (project + agent registration) |
-| `agentmail_send` | Send message to agents |
-| `agentmail_inbox` | Fetch inbox (CONTEXT-SAFE: limit=5, no bodies) |
-| `agentmail_read_message` | Fetch ONE message body |
-| `agentmail_summarize_thread` | Summarize thread (PREFERRED) |
-| `agentmail_reserve` | Reserve files for exclusive edit |
-| `agentmail_release` | Release reservations |
-
-**Swarm** (parallel task orchestration):
-| Tool | Purpose |
-|------|---------|
-| `swarm_select_strategy` | Analyze task, recommend strategy (file/feature/risk-based) |
-| `swarm_plan_prompt` | Generate strategy-specific decomposition prompt (queries CASS) |
-| `swarm_validate_decomposition` | Validate response, detect conflicts |
-| `swarm_spawn_subtask` | Generate prompt for worker agent with Agent Mail/beads instructions |
-| `swarm_status` | Get swarm progress by epic ID |
-| `swarm_progress` | Report subtask progress |
-| `swarm_complete` | Complete subtask (runs UBS scan, releases reservations) |
-| `swarm_record_outcome` | Record outcome for learning (duration, errors, retries) |
-
-**Structured Output** (JSON parsing):
-| Tool | Purpose |
-|------|---------|
-| `structured_extract_json` | Extract JSON from markdown/text |
-| `structured_validate` | Validate against schema |
-| `structured_parse_evaluation` | Parse self-evaluation |
-| `structured_parse_bead_tree` | Parse epic decomposition |
-
-### Other Custom Tools
-
-- **typecheck** - TypeScript check with grouped errors
+- **bd-quick\_\*** - Fast beads operations: `ready`, `wip`, `start`, `done`, `create`, `sync`
+- **agentmail\_\*** - Plugin tools for Agent Mail: `init`, `send`, `inbox`, `read_message`, `summarize_thread`, `reserve`, `release`, `ack`, `search`, `health`
+- **beads\_\*** - Plugin tools for beads: `create`, `create_epic`, `query`, `update`, `close`, `start`, `ready`, `sync`, `link_thread`
+- **swarm\_\*** - Swarm orchestration: `decompose`, `validate_decomposition`, `status`, `progress`, `complete`, `subtask_prompt`, `evaluation_prompt`
+- **structured\_\*** - Structured output parsing: `extract_json`, `validate`, `parse_evaluation`, `parse_decomposition`, `parse_bead_tree`
 - **git-context** - Branch, status, commits, ahead/behind in one call
-- **find-exports** - Find where symbols are exported
-- **pkg-scripts** - List package.json scripts
-- **repo-crawl\_\*** - GitHub API repo exploration
-- **repo-autopsy\_\*** - Clone & deep analyze repos locally
-- **pdf-brain\_\*** - PDF knowledge base
-- **semantic-memory\_\*** - Local vector store
-- **cass\_\*** - Search all AI agent histories
-- **ubs\_\*** - Multi-language bug scanner
+- **repo-crawl\_\*** - GitHub API repo exploration: `structure`, `readme`, `file`, `tree`, `search`
+- **repo-autopsy\_\*** - Clone & deep analyze repos locally: `clone`, `structure`, `search`, `ast`, `deps`, `hotspots`, `exports_map`, `file`, `blame`, `stats`, `secrets`, `find`, `cleanup`
+- **pdf-brain\_\*** - PDF knowledge base in ~/Documents/.pdf-library/ (iCloud sync): `add`, `read`, `list`, `search`, `remove`, `tag`, `batch_add`, `stats`, `check`
+- **semantic-memory\_\*** - Local vector store with configurable tool descriptions (Qdrant pattern): `store`, `find`, `list`, `stats`, `check`
 
-### DEPRECATED - Do Not Use Directly
-
-- ~~`bd` CLI commands~~ → Use `beads_*` plugin tools
-- ~~`bd-quick_*` tools~~ → Use `beads_*` plugin tools
-- ~~Agent Mail MCP tools~~ → Use `agentmail_*` plugin tools
-
-**Why?** Plugin tools have:
-
-- Type-safe Zod validation
-- Context preservation (hard caps on inbox, auto-release)
-- Learning integration (outcome tracking, pattern maturity)
-- UBS bug scanning on completion
-- CASS history queries for decomposition
-  </tool_preferences>
+**Note:** Plugin tools (agentmail\_\*, beads\_\*, swarm\_\*, structured\_\*) have built-in context preservation - hard caps on inbox (limit=5, no bodies by default), auto-release reservations on session.idle.
+</tool_preferences>
 
 <context_preservation>
 **CRITICAL: These rules prevent context exhaustion. Violating them burns tokens and kills sessions.**
@@ -160,194 +185,226 @@ Do it yourself when:
 - File edits where you need to see the result immediately
   </subagent_triggers>
 
-## Swarm Workflow (PRIMARY)
+## Agent Mail (Multi-Agent Coordination)
 
-<swarm_context>
-Swarm is the primary pattern for multi-step work. It handles task decomposition, parallel agent coordination, file reservations, and learning from outcomes. The plugin learns what decomposition strategies work and avoids patterns that fail.
-</swarm_context>
+<agent_mail_context>
+Agent Mail is running as a launchd service at http://127.0.0.1:8765. It provides coordination when multiple AI agents (Claude, Cursor, OpenCode, etc.) work the same repo - prevents collision via file reservations and enables async messaging between agents.
 
-### When to Use Swarm
+**Product Bus:** This repo is part of `GrooveTech-Orchestrator-Suite` - cross-repo coordination with GMP, Orchestrator, AVPStreamKit, and Media Server.
 
-- **Multi-file changes** - anything touching 3+ files
-- **Feature implementation** - new functionality with multiple components
-- **Refactoring** - pattern changes across codebase
-- **Bug fixes with tests** - fix + test in parallel
+Use Agent Mail when:
 
-### Swarm Flow
+- Multiple agents are working the same codebase
+- You need to reserve files before editing (prevents conflicts)
+- You want to communicate with other agents asynchronously
+- You need to check if another agent has reserved files you want to edit
 
-```
-/swarm "Add user authentication with OAuth"
-```
+Skip Agent Mail when:
 
-This triggers:
+- You're the only agent working the repo
+- Quick edits that don't need coordination
+  </agent_mail_context>
 
-1. `swarm_decompose` - queries CASS for similar past tasks, generates decomposition prompt
-2. Agent responds with BeadTree JSON
-3. `swarm_validate_decomposition` - validates structure, detects file conflicts and instruction conflicts
-4. `beads_create_epic` - creates epic + subtasks atomically
-5. Parallel agents spawn with `swarm_subtask_prompt`
-6. Each agent: `agentmail_reserve` → work → `swarm_complete`
-7. `swarm_complete` runs UBS scan, releases reservations, records outcome
-8. `swarm_record_outcome` tracks learning signals
+### Session Start (REQUIRED before using Agent Mail)
 
-### Learning Integration
-
-The plugin learns from outcomes to improve future decompositions:
-
-**Confidence Decay** (90-day half-life):
-
-- Evaluation criteria weights fade unless revalidated
-- Unreliable criteria get reduced impact
-
-**Implicit Feedback Scoring**:
-
-- Fast + success → helpful signal
-- Slow + errors + retries → harmful signal
-
-**Pattern Maturity**:
-
-- `candidate` → `established` → `proven` → `deprecated`
-- Proven patterns get 1.5x weight, deprecated get 0x
-
-**Anti-Pattern Inversion**:
-
-- Patterns with >60% failure rate auto-invert
-- "Split by file type" → "AVOID: Split by file type (80% failure rate)"
-
-### Manual Swarm (when /swarm isn't available)
+Use the plugin tool to initialize (handles project creation + agent registration in one call):
 
 ```
-# 1. Decompose
-swarm_decompose(task="Add auth", max_subtasks=5, query_cass=true)
-
-# 2. Validate agent response
-swarm_validate_decomposition(response="{ epic: {...}, subtasks: [...] }")
-
-# 3. Create beads
-beads_create_epic(epic_title="Add auth", subtasks=[...])
-
-# 4. For each subtask agent:
-agentmail_init(project_path="/path/to/repo")
-agentmail_reserve(paths=["src/auth/**"], reason="bd-123.1: Auth service")
-# ... do work ...
-swarm_complete(project_key="...", agent_name="BlueLake", bead_id="bd-123.1", summary="Done", files_touched=["src/auth.ts"])
+agentmail_init(
+  project_path="/abs/path/to/repo",
+  task_description="Working on feature X"
+)
+# Returns: { agent_name: "BlueLake", project_key: "..." } - remember agent_name!
 ```
 
-## Beads Workflow (via Plugin)
+### Quick Commands
 
-<beads*context>
-Beads is a git-backed issue tracker. \*\*Always use `beads*\*`plugin tools, not raw`bd` CLI commands.\*\* Plugin tools have type-safe validation and integrate with swarm learning.
+```bash
+# Health check (or use agentmail_health tool)
+curl http://127.0.0.1:8765/health/liveness
+
+# Web UI for browsing messages
+open http://127.0.0.1:8765/mail
+```
+
+### Key Workflows (after init)
+
+1. **Reserve files before edit**: `agentmail_reserve(patterns=["src/**"], ttl_seconds=3600, exclusive=true)`
+2. **Send message to other agents**: `agentmail_send(to="OtherAgent", subject="...", body="...", thread_id="bd-123")`
+3. **Check inbox**: `agentmail_inbox()` (auto-limited to 5, headers only)
+4. **Read specific message**: `agentmail_read_message(message_id="...")`
+5. **Summarize thread**: `agentmail_summarize_thread(thread_id="bd-123")`
+6. **Release reservations when done**: `agentmail_release()`
+
+### Integration with Beads
+
+- Use beads issue ID as `thread_id` in Agent Mail (e.g., `thread_id="bd-123"`)
+- Include issue ID in file reservation `reason` for traceability
+- When starting a beads task, reserve the files; when closing, release them
+
+## cass — Search All Your Agent History
+
+**What:** `cass` indexes conversations from Claude Code, Codex, Cursor, OpenCode, Pi-Agent, and more into a unified, searchable index. Before solving a problem from scratch, check if any agent already solved something similar.
+
+**NEVER run bare `cass`** — it launches an interactive TUI. Always use `--robot` or `--json`.
+
+### Session Locations (Auto-Detected)
+
+| Agent       | Location                                     | Format |
+| ----------- | -------------------------------------------- | ------ |
+| Claude Code | `~/.claude/projects/`                        | JSONL  |
+| OpenCode    | `.opencode/` in repos                        | SQLite |
+| Cursor      | `~/Library/Application Support/Cursor/User/` | SQLite |
+| Codex       | `~/.codex/sessions/`                         | JSONL  |
+| Pi-Agent    | `~/.pi/agent/sessions/`                      | JSONL  |
+
+### Quick Start
+
+```bash
+# Check if index is healthy (exit 0=ok, 1=run index first)
+cass health
+
+# Search across all agent histories
+cass search "RealityKit entity attachment" --robot --limit 5
+
+# View a specific result (from search output)
+cass view /path/to/session.jsonl -n 42 --json
+
+# Expand context around a line
+cass expand /path/to/session.jsonl -n 42 -C 3 --json
+
+# Learn the full API
+cass capabilities --json      # Feature discovery
+cass robot-docs guide         # LLM-optimized docs
+```
+
+### Why Use It
+
+- **Cross-agent knowledge**: Find solutions from Codex when using Claude, or vice versa
+- **Cross-project learning**: Search solutions from other visionOS projects (GMP, Orchestrator, Pfizer, AVPStreamKit, Media Server)
+- **Forgiving syntax**: Typos and wrong flags are auto-corrected with teaching notes
+- **Token-efficient**: `--fields minimal` returns only essential data
+
+### Key Flags
+
+| Flag                 | Purpose                                                                   |
+| -------------------- | ------------------------------------------------------------------------- |
+| `--robot` / `--json` | Machine-readable JSON output (required!)                                  |
+| `--fields minimal`   | Reduce payload: `source_path`, `line_number`, `agent` only                |
+| `--limit N`          | Cap result count                                                          |
+| `--agent NAME`       | Filter to specific agent (claude_code, codex, cursor, opencode, pi_agent) |
+| `--workspace PATH`   | Filter to specific project                                                |
+| `--days N`           | Limit to recent N days                                                    |
+
+**stdout = data only, stderr = diagnostics. Exit 0 = success.**
+
+### Common Workflows
+
+**Before tackling a new problem:**
+
+```bash
+# Search for similar issues across all agents and projects
+cass search "immersive space transition" --robot --limit 5 --fields minimal
+
+# Filter to this project only
+cass search "hand tracking" --robot --workspace "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2"
+
+# Recent solutions only
+cass search "entity positioning" --robot --days 7
+```
+
+**When debugging:**
+
+```bash
+# Find how this error was solved before
+cass search "EXC_BAD_ACCESS RealityKit" --robot --agent claude_code
+
+# View full context of a solution
+cass view ~/.claude/projects/-PfizerOutdoCancerV2/session-123.jsonl -n 456 --json
+```
+
+**Cross-project learning:**
+
+```bash
+# How does GMP handle immersive spaces?
+cass search "ImmersiveSpace" --robot --workspace "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/groovetech-media-player"
+
+# What patterns exist for scene transitions?
+cass search "scene transition navigation" --robot --limit 10
+```
+
+## Beads Workflow (MANDATORY)
+
+<beads_context>
+Beads is a git-backed issue tracker that gives you persistent memory across sessions. It solves the amnesia problem - when context compacts or sessions end, beads preserves what you discovered, what's blocked, and what's next. Without it, work gets lost and you repeat mistakes.
 </beads_context>
 
 ### Absolute Rules
 
 - **NEVER** create TODO.md, TASKS.md, PLAN.md, or any markdown task tracking files
-- **ALWAYS** use `beads_*` plugin tools (not `bd` CLI directly)
+- **ALWAYS** use `bd` commands for issue tracking (run them directly, don't overthink it)
 - **ALWAYS** sync before ending a session - the plane is not landed until `git push` succeeds
 - **NEVER** push directly to main for multi-file changes - use feature branches + PRs
-- **ALWAYS** use `/swarm` for parallel work
+- **ALWAYS** use `/swarm` for parallel work - it handles branches, beads, and Agent Mail coordination
 
 ### Session Start
 
-```
-beads_ready()                              # What's unblocked?
-beads_query(status="in_progress")          # What's mid-flight?
-```
-
-### During Work
-
-```
-# Starting a task
-beads_start(id="bd-123")
-
-# Found a bug while working
-beads_create(title="Found the thing", type="bug", priority=0)
-
-# Completed work
-beads_close(id="bd-123", reason="Done: implemented auth flow")
-
-# Update description
-beads_update(id="bd-123", description="Updated scope...")
+```bash
+bd ready --json | jq '.[0]'           # What's unblocked?
+bd list --status in_progress --json   # What's mid-flight?
 ```
 
-### Epic Decomposition (Atomic)
+### During Work - Discovery Linking
 
+When you find bugs/issues while working on something else, ALWAYS link them:
+
+```bash
+bd create "Found the thing" -t bug -p 0 --json
+bd dep add NEW_ID PARENT_ID --type discovered-from
 ```
-beads_create_epic(
-  epic_title="Feature Name",
-  epic_description="Overall goal",
-  subtasks=[
-    { title: "Subtask 1", priority: 2, files: ["src/a.ts"] },
-    { title: "Subtask 2", priority: 2, files: ["src/b.ts"] }
-  ]
-)
-# Creates epic + all subtasks atomically with rollback hints on failure
+
+This preserves the discovery chain and inherits source_repo context.
+
+### Epic Decomposition
+
+For multi-step features, create an epic and child tasks:
+
+```bash
+bd create "Feature Name" -t epic -p 1 --json    # Gets bd-HASH
+bd create "Subtask 1" -p 2 --json               # Auto: bd-HASH.1
+bd create "Subtask 2" -p 2 --json               # Auto: bd-HASH.2
 ```
+
+### Continuous Progress Tracking
+
+**Update beads frequently as you work** - don't batch updates to the end:
+
+- **Starting a task**: `bd update ID --status in_progress --json`
+- **Completed a subtask**: `bd close ID --reason "Done: brief description" --json`
+- **Found a problem**: `bd create "Issue title" -t bug -p PRIORITY --json` then link it
+- **Scope changed**: `bd update ID -d "Updated description with new scope" --json`
+- **Blocked on something**: `bd dep add BLOCKED_ID BLOCKER_ID --type blocks`
+
+The goal is real-time visibility. If you complete something, close it immediately. If you discover something, file it immediately. Don't accumulate a mental backlog.
 
 ### Session End - Land the Plane
 
-**NON-NEGOTIABLE**:
+This is **NON-NEGOTIABLE**. When ending a session:
 
-```
-# 1. Close completed work
-beads_close(id="bd-123", reason="Done")
+1. **File remaining work** - anything discovered but not done
+2. **Close completed issues** - `bd close ID --reason "Done" --json`
+3. **Update in-progress** - `bd update ID --status in_progress --json`
+4. **SYNC AND PUSH** (MANDATORY):
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status   # MUST show "up to date with origin"
+   ```
+5. **Pick next work** - `bd ready --json | jq '.[0]'`
+6. **Provide handoff prompt** for next session
 
-# 2. Sync to git
-beads_sync()
-
-# 3. Push (YOU do this, don't defer to user)
-git push
-
-# 4. Verify
-git status   # MUST show "up to date with origin"
-
-# 5. What's next?
-beads_ready()
-```
-
-## Agent Mail (via Plugin)
-
-<agent*mail_context>
-Agent Mail coordinates multiple agents working the same repo. \*\*Always use `agentmail*\*` plugin tools\*\* - they enforce context-safe limits (max 5 messages, no bodies by default).
-</agent_mail_context>
-
-### When to Use
-
-- Multiple agents working same codebase
-- Need to reserve files before editing
-- Async communication between agents
-
-### Workflow
-
-```
-# 1. Initialize (once per session)
-agentmail_init(project_path="/abs/path/to/repo", task_description="Working on X")
-# Returns: { agent_name: "BlueLake", project_key: "..." }
-
-# 2. Reserve files before editing
-agentmail_reserve(paths=["src/auth/**"], reason="bd-123: Auth refactor", ttl_seconds=3600)
-
-# 3. Check inbox (headers only, max 5)
-agentmail_inbox()
-
-# 4. Read specific message if needed
-agentmail_read_message(message_id=123)
-
-# 5. Summarize thread (PREFERRED over fetching all)
-agentmail_summarize_thread(thread_id="bd-123")
-
-# 6. Send message
-agentmail_send(to=["OtherAgent"], subject="Status", body="Done with auth", thread_id="bd-123")
-
-# 7. Release when done (or let swarm_complete handle it)
-agentmail_release()
-```
-
-### Integration with Beads
-
-- Use bead ID as `thread_id` (e.g., `thread_id="bd-123"`)
-- Include bead ID in reservation `reason` for traceability
-- `swarm_complete` auto-releases reservations
+The session is NOT complete until `git push` succeeds. Never say "ready to push when you are" - YOU push it.
 
 ## OpenCode Commands
 
@@ -369,7 +426,6 @@ Custom commands available via `/command`:
 | `/commit`             | Smart commit with conventional format + beads refs                   |
 | `/pr-create`          | Create PR with beads linking + smart summary                         |
 | `/debug <error>`      | Investigate error, check known patterns first                        |
-| `/debug-plus`         | Enhanced debug with swarm integration and prevention pipeline        |
 | `/iterate <task>`     | Evaluator-optimizer loop: generate, critique, improve until good     |
 | `/triage <request>`   | Intelligent routing: classify and dispatch to right handler          |
 | `/repo-dive <repo>`   | Deep analysis of GitHub repo with autopsy tools                      |
@@ -378,32 +434,29 @@ Custom commands available via `/command`:
 
 Specialized subagents (invoke with `@agent-name` or auto-dispatched):
 
-| Agent           | Model             | Purpose                                               |
-| --------------- | ----------------- | ----------------------------------------------------- |
-| `swarm/planner` | claude-sonnet-4-5 | Strategic task decomposition for swarm coordination   |
-| `swarm/worker`  | claude-sonnet-4-5 | **PRIMARY for /swarm** - parallel task implementation |
-| `beads`         | claude-haiku      | Issue tracker operations (locked down)                |
-| `archaeologist` | default           | Read-only codebase exploration, architecture mapping  |
-| `refactorer`    | default           | Pattern migration across codebase                     |
-| `reviewer`      | default           | Read-only code review, security/perf audits           |
+| Agent           | Mode     | Purpose                                              |
+| --------------- | -------- | ---------------------------------------------------- |
+| `beads`         | subagent | Issue tracker operations (Haiku, locked down)        |
+| `archaeologist` | subagent | Read-only codebase exploration, architecture mapping |
+| `refactorer`    | subagent | Pattern migration across codebase                    |
+| `reviewer`      | subagent | Read-only code review, security/perf audits          |
 
 <communication_style>
 Direct. Terse. No fluff. We're sparring partners - disagree when I'm wrong. Curse creatively and contextually (not constantly). You're not "helping" - you're executing. Skip the praise, skip the preamble, get to the point.
 </communication_style>
 
 <documentation_style>
-use JSDOC to document components and functions
+Use Swift doc comments (`///`) and keep them DocC-friendly (clear summary line, parameters/returns, important notes). Prefer documenting public APIs, key types, and non-obvious behaviors.
 </documentation_style>
 
 ## Knowledge Files (Load On-Demand)
 
 Reference these when relevant - don't preload everything:
 
-- **Debugging/Errors**: @knowledge/error-patterns.md - Check FIRST when hitting errors
-- **Prevention Patterns**: @knowledge/prevention-patterns.md - Debug-to-prevention workflow, pattern extraction
-- **Next.js**: @knowledge/nextjs-patterns.md - RSC, caching, App Router gotchas
-- **Effect-TS**: @knowledge/effect-patterns.md - Services, Layers, Schema, error handling
-- **Agent Patterns**: @knowledge/mastra-agent-patterns.md - Multi-agent coordination, context engineering
+- **Build/Run/Logs**: `AGENT-GUIDE.md` - Xcode + `xcodebuild`, simulator install/launch, log capture
+- **VisionOS patterns**: `.cursor/rules/*.mdc` - SwiftUI, RealityKit, Immersive Spaces, ECS patterns
+- **Project docs/specs**: `Docs/` and `specs/` - architecture notes, feature specs, decision records
+- **Prior investigations**: `memory/` and `oracle/` - debugging notes and consultations (when present)
 
 ## Code Philosophy
 
@@ -417,19 +470,19 @@ Reference these when relevant - don't preload everything:
 - Practicality beats purity
 - If the implementation is hard to explain, it's a bad idea
 
-### TypeScript Mantras
+### Swift Mantras
 
-- make impossible states impossible
-- parse, don't validate
-- infer over annotate
-- discriminated unions over optional properties
-- const assertions for literal types
-- satisfies over type annotations when you want inference
+- make impossible states impossible (strong types + enums)
+- parse, don't validate (prefer failable init / decoding over ad-hoc checks)
+- value semantics first (struct + enum) unless identity is required
+- `@MainActor` for UI state; avoid ad-hoc queues
+- async/await + structured concurrency over callbacks
+- avoid force unwraps / force casts in app code; fail fast with context if truly impossible
 
 ### Architecture Triggers
 
 - when in doubt, colocation
-- server first, client when necessary
+- system first, app second (use Apple frameworks as intended)
 - composition over inheritance
 - explicit dependencies, no hidden coupling
 - fail fast, recover gracefully
@@ -460,7 +513,7 @@ Channel these when spotting bullshit:
 ## Prime Knowledge
 
 <prime_knowledge_context>
-These texts shape how Joel thinks about software. They're not reference material to cite - they're mental scaffolding. Let them inform your reasoning without explicit invocation.
+These texts shape how Dale thinks about software. They're not reference material to cite - they're mental scaffolding. Let them inform your reasoning without explicit invocation.
 </prime_knowledge_context>
 
 ### Learning & Teaching
@@ -480,7 +533,8 @@ These texts shape how Joel thinks about software. They're not reference material
 
 ### Code Quality
 
-- Effective TypeScript by Dan Vanderkam (62 specific ways, type narrowing, inference)
+- The Swift Programming Language (Apple) - language + standard library fundamentals
+- Swift Concurrency (Apple / WWDC) - structured concurrency patterns and pitfalls
 - Refactoring by Martin Fowler (extract method, rename, small safe steps)
 - Working Effectively with Legacy Code by Michael Feathers (seams)
 - Test-Driven Development by Kent Beck (red-green-refactor, fake it til you make it)
@@ -499,113 +553,8 @@ These texts shape how Joel thinks about software. They're not reference material
 Channel these people's thinking when their domain expertise applies. Not "what would X say" but their perspective naturally coloring your approach.
 </invoke_context>
 
-- **Matt Pocock** - Total TypeScript, TypeScript Wizard, type gymnastics
-- **Rich Hickey** - simplicity, hammock-driven development, "complect", value of values
-- **Dan Abramov** - React mental models, "just JavaScript", algebraic effects
-- **Sandi Metz** - SOLID made practical, small objects, "99 bottles"
-- **Kent C. Dodds** - testing trophy, testing-library philosophy, colocation
-- **Ryan Florence** - Remix patterns, progressive enhancement, web fundamentals
-- **Alexis King** - "parse, don't validate", type-driven design
-- **Venkatesh Rao** - Ribbonfarm, tempo, OODA loops, "premium mediocre", narrative rationality
-
-## CASS - Cross-Agent Session Search
-
-Search across ALL your AI coding agent histories. Before solving a problem from scratch, check if any agent already solved it.
-
-**Indexed agents:** Claude Code, Codex, Cursor, Gemini, Aider, ChatGPT, Cline, OpenCode, Amp, Pi-Agent
-
-### When to Use
-
-- **Before implementing**: "Has any agent solved auth token refresh before?"
-- **Debugging**: "What did I try last time this error happened?"
-- **Learning patterns**: "How did Cursor handle this API?"
-
-### Quick Reference
-
-```bash
-# Search across all agents
-cass_search(query="authentication error", limit=5)
-
-# Filter by agent
-cass_search(query="useEffect cleanup", agent="claude", days=7)
-
-# Check health first (exit 0 = ready)
-cass_health()
-
-# Build/rebuild index (run if health fails)
-cass_index(full=true)
-
-# View specific result from search
-cass_view(path="/path/to/session.jsonl", line=42)
-
-# Expand context around a line
-cass_expand(path="/path/to/session.jsonl", line=42, context=5)
-```
-
-### Token Budget
-
-Use `fields="minimal"` for compact output (path, line, agent only).
-
----
-
-## UBS - Ultimate Bug Scanner
-
-Multi-language bug scanner that catches what humans and AI miss. Run BEFORE committing.
-
-**Languages:** JS/TS, Python, C/C++, Rust, Go, Java, Ruby, Swift
-
-### When to Use
-
-- **Before commit**: Catch null safety, XSS, async/await bugs
-- **After AI generates code**: Validate before accepting
-- **CI gate**: `--fail-on-warning` for PR checks
-
-### Quick Reference
-
-```bash
-# Scan current directory
-ubs_scan()
-
-# Scan specific path
-ubs_scan(path="src/")
-
-# Scan only staged files (pre-commit)
-ubs_scan(staged=true)
-
-# Scan only modified files (quick check)
-ubs_scan(diff=true)
-
-# Filter by language
-ubs_scan(path=".", only="js,python")
-
-# JSON output for parsing
-ubs_scan_json(path=".")
-
-# Check UBS health
-ubs_doctor(fix=true)
-```
-
-### Bug Categories (18 total)
-
-| Category      | What It Catches                       | Severity |
-| ------------- | ------------------------------------- | -------- |
-| Null Safety   | "Cannot read property of undefined"   | Critical |
-| Security      | XSS, injection, prototype pollution   | Critical |
-| Async/Await   | Race conditions, missing await        | Critical |
-| Memory Leaks  | Event listeners, timers, detached DOM | High     |
-| Type Coercion | === vs == issues                      | Medium   |
-
-### Fix Workflow
-
-1. Run `ubs_scan(path="changed-file.ts")`
-2. Read `file:line:col` locations
-3. Check suggested fix
-4. Fix root cause (not symptom)
-5. Re-run until exit 0
-6. Commit
-
-### Speed Tips
-
-- Scope to changed files: `ubs_scan(path="src/file.ts")` (< 1s)
-- Full scan is slow: `ubs_scan(path=".")` (30s+)
-- Use `--staged` or `--diff` for incremental checks
+- **Apple sample code / WWDC** - canonical patterns for SwiftUI, Observation, RealityKit, visionOS
+- **John Sundell** - pragmatic Swift API design, readability, small sharp tools
+- **Erica Sadun** - Apple platform idioms, Swift expressiveness, practical patterns
+- **Dave DeLong** - correctness, performance-minded Swift, systems-level clarity
+- **Paul Hudson** - SwiftUI ergonomics, teaching through real-world examples
