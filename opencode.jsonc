@@ -95,8 +95,10 @@
           "tail *": "allow",
           "swift build*": "allow",
           "swift test*": "allow",
-          "xcodebuild -showBuildSettings*": "allow",
+          "xcodebuild *": "allow",
           "xcrun *": "allow",
+          // xcode-cli-tools wrapper scripts
+          "\"/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/xcode-cli-tools/.claude/scripts/\"*": "allow",
           "*": "deny"
         }
       }
