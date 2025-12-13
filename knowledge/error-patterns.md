@@ -605,6 +605,39 @@ try {
 
 ---
 
+## SwiftUI / iOS UI Stalls
+
+### SwiftUI TextField stalls / keyboard unresponsive (self-mutation loop)
+
+**Pattern:** `UISystemGestureGateGestureRecognizer:.*blocking.*_UIKeyboardTextSelection|RTIInputSystemClient.*requires a valid sessionID.*UIEmojiSearchOperations`
+
+**Common Causes:**
+
+- SwiftUI `TextField` mutates the same bound `@State` inside `.onChange(of:)` (sanitization/truncation).
+- Re-entrant state writes while UIKit is processing keyboard/selection gestures.
+
+**Fixes:**
+
+```swift
+// Keep draft text untouched while typing.
+// Sanitize/clamp only when the user commits (Save/Submit).
+private func sanitizedNameToSave(from raw: String) -> String? {
+    let cleaned = raw
+        .components(separatedBy: .controlCharacters)
+        .joined()
+        .components(separatedBy: .newlines)
+        .joined()
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard !cleaned.isEmpty else { return nil }
+    return cleaned.count <= 32 ? cleaned : String(cleaned.prefix(32))
+}
+```
+
+**Prevention:** Avoid mutating a `TextField`’s bound state during typing; if unavoidable, only assign when the sanitized value actually changes.
+
+---
+
 ## Adding New Patterns
 
 When you encounter a novel error:
