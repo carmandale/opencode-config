@@ -8,9 +8,11 @@ Deep research mode. Spawn a hierarchical agent swarm to explore a question from 
 
 ```
 /deep-research <question>
-/deep-research <question> --web
+/deep-research <question> --no-web
 /deep-research <question> --model sonnet --researcher haiku
 ```
+
+**Note:** Web search is ENABLED by default. Use `--no-web` to disable.
 
 The input is: $ARGUMENTS
 
@@ -19,8 +21,10 @@ The input is: $ARGUMENTS
 Extract from `$ARGUMENTS`:
 - `--model` or `-m` → ORCHESTRATOR (default: opus)
 - `--researcher` or `-r` → RESEARCHER (default: sonnet)
-- `--web` or `-w` → WEB_FLAG (default: empty)
+- `--no-web` → NO_WEB_FLAG (disables web search; web is ON by default)
 - Everything else → QUESTION
+
+**Web search is enabled by default** to ensure comprehensive research.
 
 If no question provided, ask:
 ```
@@ -43,9 +47,11 @@ cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/deep-researc
 ./deep-research.sh \
   ${MODEL_FLAG:+-m "$ORCHESTRATOR"} \
   ${RESEARCHER_FLAG:+-r "$RESEARCHER"} \
-  ${WEB_FLAG:+--web} \
+  ${NO_WEB_FLAG:---web} \
   "$QUESTION"
 ```
+
+**Note:** `--web` is passed by default unless `--no-web` was specified.
 
 **Inform the user:**
 ```
@@ -110,6 +116,18 @@ Format the output:
 ## Notes
 
 - **Haiku stops recursion** - researchers answer directly, no sub-agents
-- **Web search is opt-in** - use `--web` for current events/data
+- **Web search is ON by default** - use `--no-web` to disable for purely local/codebase research
 - **Cost varies wildly** - simple with haiku: $1-2, complex with opus: $20-50+
 - **Reports persist** - all reports saved in `deep-research/reports/`
+
+## Context Passing
+
+When running from within a project, the command automatically has access to:
+- Current working directory context
+- Any files you've been discussing in the session
+- The question should include relevant file paths or code snippets if needed
+
+For codebase-specific research, include paths like:
+```
+/deep-research "Why is DeviceRowView stuck in Initializing state? Check orchestrator/Models/AppUIModel+CapabilitiesAck.swift and Shared Types/HeadsetViewState.swift"
+```
