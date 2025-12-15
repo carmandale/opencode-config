@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@opencode-ai/plugin": "1.0.152"
+    "@opencode-ai/plugin": "1.0.155"
   },
   "devDependencies": {
     "@types/node": "^20.19.26",

@@ -33,6 +33,28 @@ Each pattern follows this structure for machine parseability:
 
 ---
 
+## SwiftUI Patterns
+
+### Heavy Sheet Content Blocks Text Input
+
+**Error Pattern:** `TextField feels laggy|Keyboard doesn't appear|Typing delayed|Rename sheet slow`
+
+**Root Cause:** A `TextField` living in the same view body as an expensive subtree (large `LazyVGrid` / `List` of buttons, heavy overlays, image decoding) causes full-body recomputation and diff/layout work on every keystroke. This stalls the main thread, which delays keyboard presentation and makes editing feel broken even with minimal app state.
+
+**Prevention Action:**
+
+- Keep text-input sheets *lean* (no large grids/lists in the same body).
+- Lazy-load pickers (icon/emoji/media) into a secondary `sheet`/`popover` or separate screen.
+- If you must keep them inline, isolate state so keystrokes don’t invalidate expensive subtrees.
+
+**Example Bead:** `Prevent SwiftUI sheet lag by lazy-loading heavy pickers`
+
+**Priority:** 2
+
+**Effort:** low
+
+---
+
 ## React / Next.js Patterns
 
 ### Missing Error Boundaries

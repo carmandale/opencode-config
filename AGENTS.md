@@ -504,11 +504,24 @@ This is **NON-NEGOTIABLE**. When ending a session:
 3. **Update in-progress** - `bd update ID --status in_progress --json`
 4. **SYNC AND PUSH** (MANDATORY):
    ```bash
-   git pull --rebase
-   bd sync
+   # Stage and commit local changes first
+   git add -A && git commit -m "your message"
+   
+   # Try to push - this will fail if remote has new commits
    git push
+   
+   # ONLY if push fails with "rejected" (remote ahead), then:
+   git pull --rebase && git push
+   
+   # Sync beads after code is pushed
+   bd sync
+   
+   # Verify clean state
    git status   # MUST show "up to date with origin"
    ```
+   
+   **NEVER run `git pull --rebase` blindly** - only use it when push fails because remote is ahead. Running it unnecessarily can cause confusion and potential issues.
+
 5. **Pick next work** - `bd ready --json | jq '.[0]'`
 6. **Provide handoff prompt** for next session
 
