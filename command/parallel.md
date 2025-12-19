@@ -4,6 +4,11 @@ description: Run multiple tasks in parallel with explicit task list
 
 Explicit parallel execution - give it a list of tasks, it spawns agents for each.
 
+**HARD LIMITS:**
+- Maximum 5 parallel agents (fail if more tasks provided - ask user to batch)
+- ALWAYS show task list to user and WAIT for confirmation before spawning
+- If user says "stop" or cancels, immediately halt all work
+
 ## Usage
 
 ```

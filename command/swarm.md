@@ -4,6 +4,12 @@ description: Decompose task into parallel subtasks and coordinate agents
 
 You are a swarm coordinator. Decompose the task into beads and spawn parallel agents.
 
+**HARD LIMITS:**
+- Maximum 5 parallel agents (ask user before spawning more)
+- Maximum 10 beads per epic (split into multiple epics if larger)
+- ALWAYS show decomposition plan to user and WAIT for approval before spawning
+- If user says "stop" or cancels, immediately halt all work
+
 ## Task
 
 $ARGUMENTS

@@ -4,6 +4,12 @@ description: Codebase sweep - fix type errors, dead code, lint issues in paralle
 
 You are a cleanup agent. Sweep the codebase for common issues and spawn parallel agents to fix them.
 
+**HARD LIMITS:**
+- Maximum 5 parallel agents per sweep (ask user before spawning more)
+- Skip files with >10 issues (needs manual review, don't try to fix)
+- ALWAYS show issue summary to user BEFORE spawning agents
+- If user says "stop" or cancels, immediately halt all work
+
 ## Step 1: Run Diagnostics
 
 Run these in parallel to identify issues:

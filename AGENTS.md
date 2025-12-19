@@ -1,10 +1,71 @@
 ## Who You're Working With
 
-Dale Carman — Chief Visioneer / Chief Creative Officer at Groove Jones. Builds Apple Vision Pro experiences that have to look cinematic, run at performance targets, and survive real-world show floors (operators, resets, network weirdness, 200+ devices). You’re not here to debate frameworks — you’re here to ship clean, modern visionOS code.
+Dale Carman — Chief Visioneer / Chief Creative Officer at Groove Jones. Builds Apple Vision Pro experiences that have to look cinematic, run at performance targets, and survive real-world show floors (operators, resets, network weirdness, 200+ devices). You're not here to debate frameworks — you're here to ship clean, modern visionOS code.
 
 Daily ecosystem: visionOS 26, SwiftUI, RealityKit, Reality Composer Pro, Swift 6.x concurrency, Observation (@Observable), and RealityKit ECS (Components + Systems).
 
-Skip the “hello world” tutorials.
+Skip the "hello world" tutorials.
+
+## Session Initialization Protocol (MANDATORY)
+
+Every session starts with this sequence - no exceptions.
+
+### 1. Register with Agent Mail
+
+```bash
+agentmail_init(
+  project_path="<current repo absolute path>",
+  task_description="<what you're here to do>"
+)
+# Returns: { agent_name: "BlueLake", ... }
+# REMEMBER your agent_name for the whole session
+```
+
+### 2. Check Who's Working
+
+```bash
+agentmail_inbox()           # See active threads (headers only)
+agentmail_health()          # See other agents' reservations
+```
+
+### 3. Introduce Yourself
+
+```bash
+agentmail_send(
+  to="*",
+  subject="<YourAgentName> coming online",
+  body="Starting work on: <task>. Files I'll likely touch: <list>."
+)
+```
+
+### 4. Check for Epic (Plan)
+
+Before non-trivial work (3+ files or 30+ min), verify a plan exists:
+
+```bash
+bd list --type epic --status open --json
+```
+
+If no epic exists for this work → **create one first**:
+
+```bash
+bd create "Feature Name" -t epic -p 1 --json    # bd-HASH
+bd create "Step 1: ..." -p 2 --json              # bd-HASH.1
+bd create "Step 2: ..." -p 2 --json              # bd-HASH.2
+```
+
+### 5. Reserve Files Before Editing
+
+```bash
+agentmail_reserve(
+  patterns=["Sources/Path/**"],
+  ttl_seconds=3600,
+  exclusive=true,
+  reason="bd-123: Working on feature X"
+)
+```
+
+**Then proceed with work.**
 
 ## Repository Guidelines
 
@@ -27,7 +88,7 @@ Skip the “hello world” tutorials.
 
 ## North Star: Modern Apple Development Excellence
 
-**Shorthand for reviews/chats:** “Does this follow our North Star?” / “Follow our North Star.”
+**Shorthand for reviews/chats:** "Does this follow our North Star?" / "Follow our North Star."
 
 **Build best-in-class apps using current Apple patterns and practices.**
 
@@ -82,26 +143,78 @@ Reach for tools in this order:
 
 ### Build & Test (MANDATORY)
 
-- **Always use the repo wrapper**: `./.claude/scripts/xcodebuild` (not raw `xcodebuild`).
-- **Always run from the repo/worktree root** (so paths and derived data land in the expected `./build/` folders).
+**Always use `gj`** - never construct xcodebuild commands manually.
 
-Build (visionOS Simulator):
+#### Quick Reference
+
+| Command | Description |
+|---------|-------------|
+| `gj run <app>` | Build + install + launch + stream logs |
+| `gj launch <app>` | Launch only (skip build) |
+| `gj build <app>` | Build only (no launch) |
+| `gj logs <app>` | View recent logs |
+| `gj logs <app> "pattern"` | Search logs (e.g., `"error"`) |
+| `gj ui screenshot <app>` | Visual debugging - capture screen |
+| `gj ui describe <app>` | Dump UI accessibility tree |
+| `gj status` | Show simulators and log status |
+| `gj run --device <app>` | Run on physical AVP device |
+| `gj tui` | Interactive log viewer (all apps) |
+
+#### Supported Apps
+
+| App | Aliases | Platform |
+|-----|---------|----------|
+| `orchestrator` | `o`, `orch` | iOS/iPad (simulator only) |
+| `pfizer` | `p`, `pf` | visionOS (simulator or device) |
+| `gmp` | `g` | visionOS (simulator or device) |
+| `ms` | `s`, `server` | macOS |
+| `all` | `a` | All 4 apps |
+
+#### Common Workflows
 
 ```bash
-cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2" && ./.claude/scripts/xcodebuild -project "./PfizerOutdoCancer.xcodeproj" -scheme "PfizerOutdoCancer" build -destination 'generic/platform=visionOS Simulator'
+# Build and run
+gj run orchestrator
+
+# Run on physical AVP
+gj run --device pfizer
+
+# Search logs for errors
+gj logs pfizer "error"
+
+# Visual debug when logs don't match screen
+gj ui screenshot orchestrator
+
+# Run all apps together
+gj run all
+gj status
 ```
 
-Test (visionOS Simulator):
+#### Log Location
 
+```
+~/gj/logs/
+├── orchestrator/app-YYYYMMDD-HHMMSS.log
+├── pfizer/
+├── gmp/
+└── ms/
+```
+
+#### DO NOT
+
+- ❌ Run `xcodebuild` directly
+- ❌ Run `xcrun simctl` directly
+- ❌ Use old `.claude/scripts/` wrappers (deprecated)
+- ❌ Construct complex build commands manually
+
+If `gj: command not found`:
 ```bash
-cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/PfizerOutdoCancerV2" && ./.claude/scripts/xcodebuild -project "./PfizerOutdoCancer.xcodeproj" -scheme "PfizerOutdoCancer" test -destination 'generic/platform=visionOS Simulator'
+cd "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/gj-tool" && ./install.sh
 ```
-
-If a tool or snippet suggests `xcodebuild ...` directly, treat it as **pseudocode** and translate it to the wrapper script unless you explicitly ask otherwise.
 
 ### MCP Servers Available
 
-- **agent-mail** - Multi-agent coordination, file reservations, async messaging (OPTIONAL - plugin provides same functionality)
+- **agent-mail** - Multi-agent coordination, file reservations, async messaging
 - **chrome-devtools** - Browser automation, DOM inspection, network monitoring
 - **context7** - Library documentation lookup (`use context7` in prompts)
 - **fetch** - Web fetching with markdown conversion, pagination support
@@ -150,7 +263,7 @@ If a tool or snippet suggests `xcodebuild ...` directly, treat it as **pseudocod
 - Use `/checkpoint` proactively before context gets heavy
 - Prefer Task subagents for any multi-step exploration
 - Summarize findings in your response, don't just paste tool output
-  </context_preservation>
+</context_preservation>
 
 <thinking_triggers>
 Use extended thinking ("think hard", "think harder", "ultrathink") for:
@@ -167,7 +280,7 @@ Skip extended thinking for:
 - Obvious bug fixes
 - File reads and exploration
 - Running commands
-  </thinking_triggers>
+</thinking_triggers>
 
 <subagent_triggers>
 Spawn a subagent when:
@@ -183,7 +296,7 @@ Do it yourself when:
 - Context is already loaded
 - Tight feedback loop with user needed
 - File edits where you need to see the result immediately
-  </subagent_triggers>
+</subagent_triggers>
 
 ## Agent Mail (Multi-Agent Coordination)
 
@@ -191,26 +304,13 @@ Do it yourself when:
 Agent Mail is running as a launchd service at http://127.0.0.1:8765. It provides coordination when multiple AI agents (Claude, Cursor, OpenCode, etc.) work the same repo - prevents collision via file reservations and enables async messaging between agents.
 
 **Product Bus:** This repo is part of `GrooveTech-Orchestrator-Suite` - cross-repo coordination with GMP, Orchestrator, AVPStreamKit, and Media Server.
+
+**ALWAYS register at session start** - even if working solo. This builds audit trails, enables handoffs, and creates the habit for multi-agent work.
 </agent_mail_context>
-
-### When to Use Agent Mail
-
-**Use it when:**
-
-- Multiple agents working the same codebase (Claude + Cursor, parallel swarm workers)
-- Editing shared files that other agents might touch
-- Cross-repo coordination (AVPStreamKit changes affecting GMP/Orchestrator/Pfizer)
-- Async handoffs between sessions or agents
-
-**Skip it when:**
-
-- Solo agent on isolated feature
-- Quick read-only exploration
-- Single-file edits with no collision risk
 
 ### Session Lifecycle
 
-#### 1. Initialize (REQUIRED first)
+#### 1. Initialize (REQUIRED first - see Session Initialization Protocol above)
 
 ```
 agentmail_init(
@@ -350,6 +450,43 @@ launchctl kickstart -k gui/$(id -u)/com.agentmail.server
 - Use `agentmail_summarize_thread()` instead of fetching all messages
 - Never fetch full inbox with bodies in main conversation
 
+## Multi-Agent Coordination Patterns
+
+### Canned Prompts for Swarm Work
+
+When running multiple agents, use these standardized prompts:
+
+**Initial Agent Briefing:**
+```
+Read AGENTS.md, register with agent mail, introduce yourself to other agents, 
+and check the epic/beads for this work. Coordinate on remaining tasks by 
+discussing and splitting work. Reserve your files before editing.
+```
+
+**Proceed Prompt (DEPRECATED - CAUSES RUNAWAY BEHAVIOR):**
+```
+DO NOT use this prompt. Continuous autonomous work without user checkpoints 
+causes runaway agents that burn tokens and refuse to stop.
+
+Instead: Complete ONE task → Report back → Wait for user approval → Continue
+```
+
+**Handoff Prompt:**
+```
+Summarize what you completed, what's still in progress, and any blockers. 
+Update beads, release file reservations, and send a status message to other 
+agents. Provide a continuation prompt for the next agent.
+```
+
+### Multi-Agent Session End
+
+When ending a session with other agents active:
+
+1. **Announce departure**: `agentmail_send(to="*", subject="<Name> signing off", body="Completed: X. Still open: Y.")`
+2. **Release all reservations**: `agentmail_release()`
+3. **Update beads**: Close completed, update in-progress
+4. **Sync and push**: `git push && bd sync`
+
 ## cass — Search All Your Agent History
 
 **What:** `cass` indexes conversations from Claude Code, Codex, Cursor, OpenCode, Pi-Agent, and more into a unified, searchable index. Before solving a problem from scratch, check if any agent already solved something similar.
@@ -473,15 +610,17 @@ bd dep add NEW_ID PARENT_ID --type discovered-from
 
 This preserves the discovery chain and inherits source_repo context.
 
-### Epic Decomposition
+### Epic Decomposition (REQUIRED for Non-Trivial Work)
 
-For multi-step features, create an epic and child tasks:
+For any task touching 3+ files or taking 30+ minutes, create an epic first:
 
 ```bash
 bd create "Feature Name" -t epic -p 1 --json    # Gets bd-HASH
 bd create "Subtask 1" -p 2 --json               # Auto: bd-HASH.1
 bd create "Subtask 2" -p 2 --json               # Auto: bd-HASH.2
 ```
+
+This IS your plan. No separate PLAN.md files needed.
 
 ### Continuous Progress Tracking
 
@@ -575,7 +714,8 @@ Use Swift doc comments (`///`) and keep them DocC-friendly (clear summary line, 
 Reference these when relevant - don't preload everything:
 
 - **Swift patterns**: `knowledge/swift-patterns.md` - Observable, concurrency, AI code fixes, Xcode setup
-- **Build/Run/Logs**: `AGENT-GUIDE.md` - Xcode + `xcodebuild`, simulator install/launch, log capture
+- **Mental models & influences**: `knowledge/influences.md` - Prime knowledge texts, people to channel
+- **Build/Run/Logs**: Use `gj` tool (see Build & Test section above)
 - **VisionOS patterns**: `.cursor/rules/*.mdc` - SwiftUI, RealityKit, Immersive Spaces, ECS patterns
 - **Project docs/specs**: `Docs/` and `specs/` - architecture notes, feature specs, decision records
 - **Prior investigations**: `memory/` and `oracle/` - debugging notes and consultations (when present)
@@ -617,66 +757,10 @@ Reference these when relevant - don't preload everything:
 
 ### Anti-Patterns (Don't Do This Shit)
 
-<anti_pattern_practitioners>
-Channel these when spotting bullshit:
-
-- **Tef (Programming is Terrible)** - "write code that's easy to delete", anti-over-engineering
-- **Dan McKinley** - "Choose Boring Technology", anti-shiny-object syndrome
-- **Casey Muratori** - anti-"clean code" dogma, abstraction layers that cost more than they save
-- **Jonathan Blow** - over-engineering, "simplicity is hard", your abstractions are lying
-  </anti_pattern_practitioners>
-
 - don't abstract prematurely - wait for the third use
 - no barrel files unless genuinely necessary
 - avoid prop drilling shame - context isn't always the answer
 - don't mock what you don't own
 - no "just in case" code - YAGNI is real
 
-## Prime Knowledge
-
-<prime_knowledge_context>
-These texts shape how Dale thinks about software. They're not reference material to cite - they're mental scaffolding. Let them inform your reasoning without explicit invocation.
-</prime_knowledge_context>
-
-### Learning & Teaching
-
-- 10 Steps to Complex Learning (scaffolding, whole-task practice, cognitive load)
-- Understanding by Design (backward design, transfer, essential questions)
-- Impro by Keith Johnstone (status, spontaneity, accepting offers, "yes and")
-- Metaphors We Live By by Lakoff & Johnson (conceptual metaphors shape thought)
-
-### Software Design
-
-- The Pragmatic Programmer (tracer bullets, DRY, orthogonality, broken windows)
-- A Philosophy of Software Design (deep modules, complexity management)
-- Structure and Interpretation of Computer Programs (SICP)
-- Domain-Driven Design by Eric Evans (ubiquitous language, bounded contexts)
-- Design Patterns (GoF) - foundational vocabulary, even when rejecting patterns
-
-### Code Quality
-
-- The Swift Programming Language (Apple) - language + standard library fundamentals
-- Swift Concurrency (Apple / WWDC) - structured concurrency patterns and pitfalls
-- Refactoring by Martin Fowler (extract method, rename, small safe steps)
-- Working Effectively with Legacy Code by Michael Feathers (seams)
-- Test-Driven Development by Kent Beck (red-green-refactor, fake it til you make it)
-
-### Systems & Scale
-
-- Designing Data-Intensive Applications (replication, partitioning, consensus, stream processing)
-- Thinking in Systems by Donella Meadows (feedback loops, leverage points)
-- The Mythical Man-Month by Fred Brooks (no silver bullet, conceptual integrity)
-- Release It! by Michael Nygard (stability patterns, bulkheads, circuit breakers)
-- Category Theory for Programmers by Bartosz Milewski (composition, functors, monads)
-
-## Invoke These People
-
-<invoke_context>
-Channel these people's thinking when their domain expertise applies. Not "what would X say" but their perspective naturally coloring your approach.
-</invoke_context>
-
-- **Apple sample code / WWDC** - canonical patterns for SwiftUI, Observation, RealityKit, visionOS
-- **John Sundell** - pragmatic Swift API design, readability, small sharp tools
-- **Erica Sadun** - Apple platform idioms, Swift expressiveness, practical patterns
-- **Dave DeLong** - correctness, performance-minded Swift, systems-level clarity
-- **Paul Hudson** - SwiftUI ergonomics, teaching through real-world examples
+When spotting bullshit, channel: Tef ("write code that's easy to delete"), Dan McKinley ("Choose Boring Technology"), Casey Muratori (anti-"clean code" dogma), Jonathan Blow ("simplicity is hard").

@@ -4,6 +4,12 @@ description: Evaluator-optimizer loop - generate, critique, improve until qualit
 
 Iterative refinement using the evaluator-optimizer pattern. Generate something, critique it, improve it, repeat until good enough.
 
+**HARD LIMITS:**
+- Maximum 3 rounds by default (override with --max-rounds, hard cap at 5)
+- ALWAYS show evaluation results to user between rounds
+- If user says "stop" or cancels, immediately halt
+- Do NOT spawn additional agents without user approval
+
 ## Usage
 
 ```
