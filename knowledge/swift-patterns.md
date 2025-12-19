@@ -499,6 +499,32 @@ struct User { ... }
 struct Post { ... }
 ```
 
+## RealityKit Patterns
+
+### USD Timeline Reset Before Replay
+
+`playTimeline(named:)` **continues from current position**, not from the beginning. On repeat visits, a completed timeline starts at 100%, making entities appear at their final animated positions (invisible/wrong place).
+
+```swift
+// WRONG - timeline may already be at end position
+if entity.playTimeline(named: "IntroAnimation") != nil {
+    // Animation plays but entities don't move - already at final positions
+}
+
+// CORRECT - reset timeline before playing
+entity.stopAllAnimations(recursive: true)  // Resets to starting position
+if entity.playTimeline(named: "IntroAnimation") != nil {
+    // Animation plays from beginning every time
+}
+```
+
+**When this bites you:**
+- First visit works perfectly
+- Repeat visits via navigation or Orchestrator commands show no animation
+- Logs say timeline played but visuals are static
+
+**The fix:** Always call `stopAllAnimations(recursive: true)` before `playTimeline()` when the scene may be revisited.
+
 ## Sources
 
 - [Nil Coalescing: Initializing Observable Classes](https://nilcoalescing.com/blog/InitializingObservableClassesWithinTheSwiftUIHierarchy/)

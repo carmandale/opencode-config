@@ -50,28 +50,8 @@
   },
 
   // === MCP Servers ===
-  "mcp": {
-    // NOTE: Start server first with `am` command, otherwise OpenCode hangs
-    "agent-mail": {
-      "type": "remote",
-      "url": "http://127.0.0.1:8765/mcp/",
-      "headers": {
-        "Authorization": "Bearer 422b429ed87ec88e7cfe258b3ddee9eb9afe2adcf62ae1a5d4c89269ae1c9a90"
-      }
-    },
-    // Web fetching - MCP official server (Python via uvx)
-    "fetch": {
-      "type": "local",
-      "command": ["uvx", "mcp-server-fetch"],
-      "timeout": 5000
-    },
-    // RepoPrompt - repo context generation (requires Repo Prompt app running)
-    "RepoPrompt": {
-      "type": "local",
-      "command": ["/Users/dalecarman/RepoPrompt/repoprompt_cli"],
-      "timeout": 3000
-    }
-  },
+  // MCPs removed - swarm plugin provides agentmail_* wrappers via direct HTTP
+  // This avoids duplicate tools (was causing 201+ tools, breaking grok-code's 200 limit)
   
   // === OpenAI Codex Provider (ChatGPT Pro subscription) ===
   "provider": {

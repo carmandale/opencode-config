@@ -26,6 +26,7 @@ interface PluginInput {
 
 interface Event {
   type: string;
+  sessionID?: string;
   [key: string]: unknown;
 }
 
@@ -81,6 +82,20 @@ interface CassResult {
   agent: string;
   snippet?: string;
 }
+
+// Use global object to persist state across module reloads
+// This prevents duplicate output when plugin is loaded multiple times
+const globalKey = '__AMNESIA_PLUGIN_STATE__';
+const globalState = (globalThis as Record<string, unknown>)[globalKey] as { 
+  initializedSessions: Set<string>;
+  contextPrinted: boolean;
+} | undefined;
+
+const state = globalState ?? { 
+  initializedSessions: new Set<string>(),
+  contextPrinted: false 
+};
+(globalThis as Record<string, unknown>)[globalKey] = state;
 
 // Parse error patterns from markdown
 function parseErrorPatterns(content: string): ErrorPattern[] {
@@ -256,17 +271,35 @@ async function matchErrorPatterns(output: string): Promise<string | null> {
   return null;
 }
 
-// Track session state
-let sessionHasErrors = false;
-let sessionStartTime: Date | null = null;
-
 export const AmnesiaPlugin: Plugin = async ({ directory }) => {
   const cwd = directory;
+  
+  // Per-instance state (scoped to this plugin instance)
+  let sessionHasErrors = false;
+  let sessionStartTime: Date | null = null;
+  let mainSessionID: string | null = null;
 
   return {
     // Inject context at session start
     event: async ({ event }) => {
       if (event.type === "session.created") {
+        const sessionID = event.sessionID as string | undefined;
+        
+        // Guard: Only print context ONCE across all plugin instances
+        // Uses globalThis to persist state across module reloads
+        if (state.contextPrinted) {
+          return;
+        }
+        
+        // Mark as printed BEFORE async work to prevent race conditions
+        state.contextPrinted = true;
+        
+        // Track session for idle event handling
+        if (sessionID) {
+          state.initializedSessions.add(sessionID);
+          mainSessionID = sessionID;
+        }
+        
         sessionStartTime = new Date();
         sessionHasErrors = false;
 
@@ -276,8 +309,15 @@ export const AmnesiaPlugin: Plugin = async ({ directory }) => {
         }
       }
 
-      // Prompt for /retro at session end
+      // Prompt for /retro at session end (only for main session)
       if (event.type === "session.idle") {
+        const sessionID = event.sessionID as string | undefined;
+        
+        // Only show for main session
+        if (sessionID && mainSessionID && sessionID !== mainSessionID) {
+          return;
+        }
+        
         if (sessionHasErrors && sessionStartTime) {
           const duration = Date.now() - sessionStartTime.getTime();
           // Only prompt if session was >5 minutes and had errors
